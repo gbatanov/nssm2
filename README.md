@@ -10,7 +10,7 @@ fails for any reason.
 
 NSSM2 also has a graphical service installer and remover.
 
-Полная докментация на английском об исходной версии NSSM
+Полная документация на английском об исходной версии NSSM
 
                               http://nssm.cc/
 
