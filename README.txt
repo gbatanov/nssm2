@@ -1,3 +1,6 @@
+NSSM2: The Non-Sacking Service Manager
+Version 2.24.1, 2024-02-20
+Based on:
 NSSM: The Non-Sucking Service Manager
 Version 2.24, 2014-08-31
 

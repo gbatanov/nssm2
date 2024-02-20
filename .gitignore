@@ -30,3 +30,13 @@
 
 # Debug files
 *.dSYM/
+
+.vs/
+Backup/
+*.bin
+out/
+tmp/
+version.h
+UpgradeLog*
+*.filters
+*.user

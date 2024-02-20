@@ -18,7 +18,7 @@ static unsigned long WINAPI await_hook(void *arg) {
 
   /* Tidy up hook process tree. */
   if (hook->name) hook->k.name = hook->name;
-  else hook->k.name = _T("hook");
+  else hook->k.name = (TCHAR*)_T("hook");
   hook->k.process_handle = hook->process_handle;
   hook->k.pid = hook->pid;
   hook->k.stop_method = ~0;
@@ -174,7 +174,7 @@ void await_hook_threads(hook_thread_t *hook_threads, SERVICE_STATUS_HANDLE statu
   int i;
   for (i = 0; i < hook_threads->num_threads; i++) {
     if (deadline) {
-      if (await_single_handle(status_handle, status, hook_threads->data[i].thread_handle, hook_threads->data[i].name, _T(__FUNCTION__), deadline) != 1) {
+      if (await_single_handle(status_handle, status, hook_threads->data[i].thread_handle, hook_threads->data[i].name, (TCHAR*)_T(__FUNCTION__), deadline) != 1) {
         CloseHandle(hook_threads->data[i].thread_handle);
         continue;
       }
@@ -267,14 +267,14 @@ int nssm_hook(hook_thread_t *hook_threads, nssm_service_t *service, TCHAR *hook_
   SetEnvironmentVariable(NSSM_HOOK_ENV_PID, number);
 
   /* NSSM runtime. */
-  set_hook_runtime(NSSM_HOOK_ENV_RUNTIME, &service->nssm_creation_time, &now);
+  set_hook_runtime((TCHAR*)NSSM_HOOK_ENV_RUNTIME, &service->nssm_creation_time, &now);
 
   /* Application PID. */
   if (service->pid) {
     _sntprintf_s(number, _countof(number), _TRUNCATE, _T("%lu"), service->pid);
     SetEnvironmentVariable(NSSM_HOOK_ENV_APPLICATION_PID, number);
     /* Application runtime. */
-    set_hook_runtime(NSSM_HOOK_ENV_APPLICATION_RUNTIME, &service->creation_time, &now);
+    set_hook_runtime((TCHAR*)NSSM_HOOK_ENV_APPLICATION_RUNTIME, &service->creation_time, &now);
     /* Exit code. */
     SetEnvironmentVariable(NSSM_HOOK_ENV_EXITCODE, _T(""));
   }
@@ -285,7 +285,7 @@ int nssm_hook(hook_thread_t *hook_threads, nssm_service_t *service, TCHAR *hook_
       SetEnvironmentVariable(NSSM_HOOK_ENV_EXITCODE, _T(""));
     }
     else {
-      set_hook_runtime(NSSM_HOOK_ENV_APPLICATION_RUNTIME, &service->creation_time, &service->exit_time);
+      set_hook_runtime((TCHAR*)NSSM_HOOK_ENV_APPLICATION_RUNTIME, &service->creation_time, &service->exit_time);
       /* Exit code. */
       _sntprintf_s(number, _countof(number), _TRUNCATE, _T("%lu"), service->exitcode);
       SetEnvironmentVariable(NSSM_HOOK_ENV_EXITCODE, number);
@@ -366,7 +366,7 @@ int nssm_hook(hook_thread_t *hook_threads, nssm_service_t *service, TCHAR *hook_
         add_thread_handle(hook_threads, thread_handle, hook->name);
       }
       else {
-        await_single_handle(service->status_handle, &service->status, thread_handle, hook->name, _T(__FUNCTION__), deadline + NSSM_SERVICE_STATUS_DEADLINE);
+        await_single_handle(service->status_handle, &service->status, thread_handle, hook->name, (TCHAR*)_T(__FUNCTION__), deadline + NSSM_SERVICE_STATUS_DEADLINE);
         unsigned long exitcode;
         GetExitCodeThread(thread_handle, &exitcode);
         ret = (int) exitcode;

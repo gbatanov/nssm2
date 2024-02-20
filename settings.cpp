@@ -209,7 +209,7 @@ static int setting_set_hook(const TCHAR *service_name, void *param, const TCHAR 
 
   TCHAR *cmd;
   if (value && value->string) cmd = value->string;
-  else cmd = _T("");
+  else cmd = (TCHAR*)_T("");
 
   if (set_hook(service_name, hook_event, hook_action, cmd)) return -1;
   if (! _tcslen(cmd)) return 0;
@@ -794,7 +794,7 @@ int native_set_objectname(const TCHAR *service_name, void *param, const TCHAR *n
     That means the username is actually passed in the additional parameter.
   */
   bool localsystem = false;
-  TCHAR *username = NSSM_LOCALSYSTEM_ACCOUNT;
+  TCHAR *username = (TCHAR*)NSSM_LOCALSYSTEM_ACCOUNT;
   TCHAR *password = 0;
   if (additional) {
     username = (TCHAR *) additional;
@@ -807,7 +807,7 @@ int native_set_objectname(const TCHAR *service_name, void *param, const TCHAR *n
   if (well_known) {
     if (str_equiv(well_known, NSSM_LOCALSYSTEM_ACCOUNT)) localsystem = true;
     username = (TCHAR *) well_known;
-    password = _T("");
+    password = (TCHAR*)_T("");
   }
   else if (! password) {
     /* We need a password if the account requires it. */
@@ -1118,11 +1118,11 @@ settings_t settings[] = {
   { NSSM_REG_ROTATE_DELAY, REG_DWORD, (void *) NSSM_ROTATE_DELAY, false, 0, setting_set_number, setting_get_number },
   { NSSM_NATIVE_DEPENDONGROUP, REG_MULTI_SZ, NULL, true, ADDITIONAL_CRLF, native_set_dependongroup, native_get_dependongroup },
   { NSSM_NATIVE_DEPENDONSERVICE, REG_MULTI_SZ, NULL, true, ADDITIONAL_CRLF, native_set_dependonservice, native_get_dependonservice },
-  { NSSM_NATIVE_DESCRIPTION, REG_SZ, _T(""), true, 0, native_set_description, native_get_description },
+  { NSSM_NATIVE_DESCRIPTION, REG_SZ, (void*)_T(""), true, 0, native_set_description, native_get_description },
   { NSSM_NATIVE_DISPLAYNAME, REG_SZ, NULL, true, 0, native_set_displayname, native_get_displayname },
   { NSSM_NATIVE_ENVIRONMENT, REG_MULTI_SZ, NULL, true, ADDITIONAL_CRLF, native_set_environment, native_get_environment },
   { NSSM_NATIVE_IMAGEPATH, REG_EXPAND_SZ, NULL, true, 0, native_set_imagepath, native_get_imagepath },
-  { NSSM_NATIVE_OBJECTNAME, REG_SZ, NSSM_LOCALSYSTEM_ACCOUNT, true, 0, native_set_objectname, native_get_objectname },
+  { NSSM_NATIVE_OBJECTNAME, REG_SZ, (void*)NSSM_LOCALSYSTEM_ACCOUNT, true, 0, native_set_objectname, native_get_objectname },
   { NSSM_NATIVE_NAME, REG_SZ, NULL, true, 0, native_set_name, native_get_name },
   { NSSM_NATIVE_STARTUP, REG_SZ, NULL, true, 0, native_set_startup, native_get_startup },
   { NSSM_NATIVE_TYPE, REG_SZ, NULL, true, 0, native_set_type, native_get_type },

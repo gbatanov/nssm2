@@ -179,7 +179,7 @@ int _tmain(int argc, TCHAR **argv) {
   */
   if (! GetStdHandle(STD_INPUT_HANDLE)) {
     /* Start service magic */
-    SERVICE_TABLE_ENTRY table[] = { { NSSM, service_main }, { 0, 0 } };
+    SERVICE_TABLE_ENTRY table[] = { { (LPWSTR)NSSM, service_main }, { 0, 0 } };
     if (! StartServiceCtrlDispatcher(table)) {
       unsigned long error = GetLastError();
       /* User probably ran nssm with no argument */
