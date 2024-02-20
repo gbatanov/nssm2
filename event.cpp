@@ -11,7 +11,8 @@ TCHAR *error_string(unsigned long error) {
   TCHAR *error_message = (TCHAR *) TlsGetValue(tls_index);
   if (! error_message) {
     error_message = (TCHAR *) LocalAlloc(LPTR, NSSM_ERROR_BUFSIZE);
-    if (! error_message) return _T("<out of memory for error message>");
+    if (! error_message) 
+        return (TCHAR*)_T("<out of memory for error message>");
     TlsSetValue(tls_index, (void *) error_message);
   }
 

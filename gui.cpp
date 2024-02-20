@@ -1,6 +1,6 @@
 #include "nssm.h"
 
-static enum { NSSM_TAB_APPLICATION, NSSM_TAB_DETAILS, NSSM_TAB_LOGON, NSSM_TAB_DEPENDENCIES, NSSM_TAB_PROCESS, NSSM_TAB_SHUTDOWN, NSSM_TAB_EXIT, NSSM_TAB_IO, NSSM_TAB_ROTATION, NSSM_TAB_ENVIRONMENT, NSSM_TAB_HOOKS, NSSM_NUM_TABS };
+enum NSSM_TAB{ NSSM_TAB_APPLICATION, NSSM_TAB_DETAILS, NSSM_TAB_LOGON, NSSM_TAB_DEPENDENCIES, NSSM_TAB_PROCESS, NSSM_TAB_SHUTDOWN, NSSM_TAB_EXIT, NSSM_TAB_IO, NSSM_TAB_ROTATION, NSSM_TAB_ENVIRONMENT, NSSM_TAB_HOOKS, NSSM_NUM_TABS };
 static HWND tablist[NSSM_NUM_TABS];
 static const TCHAR *hook_event_strings[] = { NSSM_HOOK_EVENT_START, NSSM_HOOK_EVENT_STOP, NSSM_HOOK_EVENT_EXIT, NSSM_HOOK_EVENT_POWER, NSSM_HOOK_EVENT_ROTATE, NULL };
 static const TCHAR *hook_action_strings[] = { NSSM_HOOK_ACTION_PRE, NSSM_HOOK_ACTION_POST, NSSM_HOOK_ACTION_CHANGE, NSSM_HOOK_ACTION_RESUME, NULL };
@@ -300,37 +300,39 @@ static inline void set_hook_tab(int event_index, int action_index, bool changed)
     case NSSM_GUI_HOOK_EVENT_ROTATE:
       i = 0;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_ROTATE_PRE));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_PRE;
+      if (action_index == i++) 
+          hook_action = (TCHAR*)NSSM_HOOK_ACTION_PRE;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_ROTATE_POST));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_POST;
+      if (action_index == i++) 
+          hook_action = (TCHAR*)NSSM_HOOK_ACTION_POST;
       break;
 
     case NSSM_GUI_HOOK_EVENT_START:
       i = 0;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_START_PRE));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_PRE;
+      if (action_index == i++) hook_action = (TCHAR*)NSSM_HOOK_ACTION_PRE;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_START_POST));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_POST;
+      if (action_index == i++) hook_action = (TCHAR*)NSSM_HOOK_ACTION_POST;
       break;
 
     case NSSM_GUI_HOOK_EVENT_STOP:
       i = 0;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_STOP_PRE));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_PRE;
+      if (action_index == i++) hook_action = (TCHAR*)NSSM_HOOK_ACTION_PRE;
       break;
 
     case NSSM_GUI_HOOK_EVENT_EXIT:
       i = 0;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_EXIT_POST));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_POST;
+      if (action_index == i++) hook_action = (TCHAR*)NSSM_HOOK_ACTION_POST;
       break;
 
     case NSSM_GUI_HOOK_EVENT_POWER:
       i = 0;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_POWER_CHANGE));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_CHANGE;
+      if (action_index == i++) hook_action = (TCHAR*)NSSM_HOOK_ACTION_CHANGE;
       SendMessage(combo, CB_INSERTSTRING, i, (LPARAM) message_string(NSSM_GUI_HOOK_ACTION_POWER_RESUME));
-      if (action_index == i++) hook_action = NSSM_HOOK_ACTION_RESUME;
+      if (action_index == i++) hook_action = (TCHAR*)NSSM_HOOK_ACTION_RESUME;
       break;
   }
 
@@ -655,9 +657,9 @@ int configure(HWND window, nssm_service_t *service, nssm_service_t *orig_service
   check_number(tablist[NSSM_TAB_EXIT], IDC_RESTART_DELAY, &service->restart_delay);
 
   /* Get I/O stuff. */
-  check_io(window, _T("stdin"), service->stdin_path, _countof(service->stdin_path), IDC_STDIN);
-  check_io(window, _T("stdout"), service->stdout_path, _countof(service->stdout_path), IDC_STDOUT);
-  check_io(window, _T("stderr"), service->stderr_path, _countof(service->stderr_path), IDC_STDERR);
+  check_io(window, (TCHAR*)_T("stdin"), service->stdin_path, _countof(service->stdin_path), IDC_STDIN);
+  check_io(window, (TCHAR*)_T("stdout"), service->stdout_path, _countof(service->stdout_path), IDC_STDOUT);
+  check_io(window, (TCHAR*)_T("stderr"), service->stderr_path, _countof(service->stderr_path), IDC_STDERR);
 
   /* Override stdout and/or stderr. */
   if (SendDlgItemMessage(tablist[NSSM_TAB_ROTATION], IDC_TRUNCATE, BM_GETCHECK, 0, 0) & BST_CHECKED) {
@@ -863,10 +865,10 @@ int edit(HWND window, nssm_service_t *orig_service) {
 
 static TCHAR *browse_filter(int message) {
   switch (message) {
-    case NSSM_GUI_BROWSE_FILTER_APPLICATIONS: return _T("*.exe;*.bat;*.cmd");
-    case NSSM_GUI_BROWSE_FILTER_DIRECTORIES: return _T(".");
+    case NSSM_GUI_BROWSE_FILTER_APPLICATIONS: return (TCHAR*)_T("*.exe;*.bat;*.cmd");
+    case NSSM_GUI_BROWSE_FILTER_DIRECTORIES: return (TCHAR*)_T(".");
     case NSSM_GUI_BROWSE_FILTER_ALL_FILES: /* Fall through. */
-    default: return _T("*.*");
+    default: return (TCHAR*)_T("*.*");
   }
 }
 
@@ -1044,7 +1046,8 @@ INT_PTR CALLBACK tab_dlg(HWND tab, UINT message, WPARAM w, LPARAM l) {
         case IDC_BROWSE_HOOK:
           dlg = GetDlgItem(tab, IDC_HOOK);
           GetDlgItemText(tab, IDC_HOOK, buffer, _countof(buffer));
-          browse(dlg, _T(""), OFN_FILEMUSTEXIST, NSSM_GUI_BROWSE_FILTER_ALL_FILES, 0);
+          //void browse(HWND window, TCHAR *current, unsigned long flags, ...) 
+          browse(dlg, (TCHAR*)_T(""), OFN_FILEMUSTEXIST, NSSM_GUI_BROWSE_FILTER_ALL_FILES, 0);
           break;
 
         /* Hook. */

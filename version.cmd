@@ -1,19 +1,19 @@
 @rem Set default version in case git isn't available.
-set description=0.0-0-prerelease
-@rem Get canonical version from git tags, eg v2.21-24-g2c60e53.
+set description=v2.24.1-4-prerelease
+@rem Get canonical version from git tags, eg v2.24-1-g2c60e53.
 for /f %%v in ('git describe --tags --long') do set description=%%v
 
-@rem Strip leading v if present, eg 2.21-24-g2c60e53.
+@rem Strip leading v if present, eg 2.24-1-g2c60e53.
 set description=%description:v=%
 set version=%description%
 
-@rem Get the number of commits and commit hash, eg 24-g2c60e53.
+@rem Get the number of commits and commit hash, eg 1-g2c60e53.
 set n=%version:*-=%
 set commit=%n:*-=%
 call set n=%%n:%commit%=%%
 set n=%n:~0,-1%
 
-@rem Strip n and commit, eg 2.21.
+@rem Strip n and commit, eg 2.24.
 call set version=%%version:%n%-%commit%=%%
 set version=%version:~0,-1%
 
@@ -43,7 +43,7 @@ if "%BUILD_ID%" == "" set year=
 @echo>>version.h.new #define NSSM_VERSIONINFO %major%,%minor%,%n%,%BUILD_NUMBER%
 @echo>>version.h.new #define NSSM_DATE _T("%DATE%")
 @echo>>version.h.new #define NSSM_FILEFLAGS %flags%
-@echo>>version.h.new #define NSSM_COPYRIGHT _T("Public Domain; Author Iain Patterson 2003-%year%")
+@echo>>version.h.new #define NSSM_COPYRIGHT _T("Public Domain; Authors Iain Patterson 2003-2015, Gsb 2024")
 
 fc version.h version.h.new >NUL: 2>NUL:
 if %ERRORLEVEL% == 0 (del version.h.new) else (move /y version.h.new version.h)

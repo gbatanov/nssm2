@@ -300,7 +300,7 @@ int grant_logon_as_service(const TCHAR *username) {
 
   /* Check if the SID has the "Log on as a service" right. */
   LSA_UNICODE_STRING lsa_right;
-  lsa_right.Buffer = NSSM_LOGON_AS_SERVICE_RIGHT;
+  lsa_right.Buffer = (PWSTR)NSSM_LOGON_AS_SERVICE_RIGHT;
   lsa_right.Length = (unsigned short) wcslen(lsa_right.Buffer) * sizeof(wchar_t);
   lsa_right.MaximumLength = lsa_right.Length + sizeof(wchar_t);
 

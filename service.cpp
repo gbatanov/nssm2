@@ -232,10 +232,13 @@ int affinity_string_to_mask(TCHAR *string, __int64 *mask) {
     }
     else return 4;
   }
+  __int64 m1 = (__int64)*mask;
 
   for (i = 0; i <= n; i++) {
-    for (int j = set[i].first; j <= set[i].last; j++) (__int64) *mask |= (1LL << (__int64) j);
+    for (int j = set[i].first; j <= set[i].last; j++) 
+        m1 |= (1LL << (__int64) j);
   }
+  *mask = m1;
 
   return 0;
 }
@@ -430,7 +433,7 @@ QUERY_SERVICE_CONFIG *query_service_config(const TCHAR *service_name, SC_HANDLE 
 }
 
 int set_service_dependencies(const TCHAR *service_name, SC_HANDLE service_handle, TCHAR *buffer) {
-  TCHAR *dependencies = _T("");
+  TCHAR *dependencies = (TCHAR*)_T("");
   unsigned long num_dependencies = 0;
 
   if (buffer && buffer[0]) {
@@ -616,7 +619,7 @@ int set_service_description(const TCHAR *service_name, SC_HANDLE service_handle,
     or "".
   */
   if (buffer && buffer[0]) description.lpDescription = buffer;
-  else description.lpDescription = _T("");
+  else description.lpDescription = (TCHAR*)_T("");
 
   if (ChangeServiceConfig2(service_handle, SERVICE_CONFIG_DESCRIPTION, &description)) return 0;
 
@@ -977,7 +980,7 @@ int pre_edit_service(int argc, TCHAR **argv) {
     }
   }
 
-  /* Get NSSM details. */
+  /* Get NSSM2 details. */
   get_parameters(service, 0);
 
   CloseServiceHandle(services);
@@ -993,7 +996,7 @@ int pre_edit_service(int argc, TCHAR **argv) {
     return 0;
   }
 
-  /* Trying to manage App* parameters for a non-NSSM service. */
+  /* Trying to manage App* parameters for a non-NSSM2 service. */
   if (! setting->native && service->native) {
     CloseServiceHandle(service->handle);
     print_message(stderr, NSSM_MESSAGE_NATIVE_PARAMETER, setting->name, NSSM);
@@ -1186,9 +1189,9 @@ int edit_service(nssm_service_t *service, bool editing) {
     if (canonicalise_username(username, &canon)) return 5;
     if (service->passwordlen) password = service->password;
   }
-  else if (editing) username = canon = NSSM_LOCALSYSTEM_ACCOUNT;
+  else if (editing) username = canon = (TCHAR*)NSSM_LOCALSYSTEM_ACCOUNT;
 
-  if (well_known_username(canon)) password = _T("");
+  if (well_known_username(canon)) password = (TCHAR*)_T("");
   else {
     if (grant_logon_as_service(canon)) {
       if (canon != username) HeapFree(GetProcessHeap(), 0, canon);
@@ -1197,7 +1200,7 @@ int edit_service(nssm_service_t *service, bool editing) {
     }
   }
 
-  TCHAR *dependencies = _T("");
+  TCHAR *dependencies = (TCHAR*)_T("");
   if (service->dependencieslen) dependencies = 0; /* Change later. */
 
   if (! ChangeServiceConfig(service->handle, service->type, startup, SERVICE_NO_CHANGE, 0, 0, 0, dependencies, canon, password, service->displayname)) {
@@ -1529,27 +1532,27 @@ int monitor_service(nssm_service_t *service) {
 TCHAR *service_control_text(unsigned long control) {
   switch (control) {
     /* HACK: there is no SERVICE_CONTROL_START constant */
-    case NSSM_SERVICE_CONTROL_START: return _T("START");
-    case SERVICE_CONTROL_STOP: return _T("STOP");
-    case SERVICE_CONTROL_SHUTDOWN: return _T("SHUTDOWN");
-    case SERVICE_CONTROL_PAUSE: return _T("PAUSE");
-    case SERVICE_CONTROL_CONTINUE: return _T("CONTINUE");
-    case SERVICE_CONTROL_INTERROGATE: return _T("INTERROGATE");
-    case NSSM_SERVICE_CONTROL_ROTATE: return _T("ROTATE");
-    case SERVICE_CONTROL_POWEREVENT: return _T("POWEREVENT");
+    case NSSM_SERVICE_CONTROL_START: return (TCHAR*)_T("START");
+    case SERVICE_CONTROL_STOP: return (TCHAR*)_T("STOP");
+    case SERVICE_CONTROL_SHUTDOWN: return (TCHAR*)_T("SHUTDOWN");
+    case SERVICE_CONTROL_PAUSE: return (TCHAR*)_T("PAUSE");
+    case SERVICE_CONTROL_CONTINUE: return (TCHAR*)_T("CONTINUE");
+    case SERVICE_CONTROL_INTERROGATE: return (TCHAR*)_T("INTERROGATE");
+    case NSSM_SERVICE_CONTROL_ROTATE: return (TCHAR*)_T("ROTATE");
+    case SERVICE_CONTROL_POWEREVENT: return (TCHAR*)_T("POWEREVENT");
     default: return 0;
   }
 }
 
 TCHAR *service_status_text(unsigned long status) {
   switch (status) {
-    case SERVICE_STOPPED: return _T("SERVICE_STOPPED");
-    case SERVICE_START_PENDING: return _T("SERVICE_START_PENDING");
-    case SERVICE_STOP_PENDING: return _T("SERVICE_STOP_PENDING");
-    case SERVICE_RUNNING: return _T("SERVICE_RUNNING");
-    case SERVICE_CONTINUE_PENDING: return _T("SERVICE_CONTINUE_PENDING");
-    case SERVICE_PAUSE_PENDING: return _T("SERVICE_PAUSE_PENDING");
-    case SERVICE_PAUSED: return _T("SERVICE_PAUSED");
+    case SERVICE_STOPPED: return (TCHAR*)_T("SERVICE_STOPPED");
+    case SERVICE_START_PENDING: return (TCHAR*)_T("SERVICE_START_PENDING");
+    case SERVICE_STOP_PENDING: return (TCHAR*)_T("SERVICE_STOP_PENDING");
+    case SERVICE_RUNNING: return (TCHAR*)_T("SERVICE_RUNNING");
+    case SERVICE_CONTINUE_PENDING: return (TCHAR*)_T("SERVICE_CONTINUE_PENDING");
+    case SERVICE_PAUSE_PENDING: return (TCHAR*)_T("SERVICE_PAUSE_PENDING");
+    case SERVICE_PAUSED: return (TCHAR*)_T("SERVICE_PAUSED");
     default: return 0;
   }
 }
@@ -1604,7 +1607,7 @@ unsigned long WINAPI service_control_handler(unsigned long control, unsigned lon
       SetServiceStatus(service->status_handle, &service->status);
 
       /* Pre-stop hook. */
-      nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_STOP, NSSM_HOOK_ACTION_PRE, &control, NSSM_SERVICE_STATUS_DEADLINE, false);
+      nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_STOP, (TCHAR*)NSSM_HOOK_ACTION_PRE, &control, NSSM_SERVICE_STATUS_DEADLINE, false);
 
       /*
         We MUST acknowledge the stop request promptly but we're committed to
@@ -1654,10 +1657,10 @@ unsigned long WINAPI service_control_handler(unsigned long control, unsigned lon
     case NSSM_SERVICE_CONTROL_ROTATE:
       service->last_control = control;
       log_service_control(service->name, control, true);
-      (void) nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_ROTATE, NSSM_HOOK_ACTION_PRE, &control, NSSM_HOOK_DEADLINE, false);
+      (void) nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_ROTATE, (TCHAR*)NSSM_HOOK_ACTION_PRE, &control, NSSM_HOOK_DEADLINE, false);
       if (service->rotate_stdout_online == NSSM_ROTATE_ONLINE) service->rotate_stdout_online = NSSM_ROTATE_ONLINE_ASAP;
       if (service->rotate_stderr_online == NSSM_ROTATE_ONLINE) service->rotate_stderr_online = NSSM_ROTATE_ONLINE_ASAP;
-      (void) nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_ROTATE, NSSM_HOOK_ACTION_POST, &control);
+      (void) nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_ROTATE, (TCHAR*)NSSM_HOOK_ACTION_POST, &control);
       return NO_ERROR;
 
     case SERVICE_CONTROL_POWEREVENT:
@@ -1665,7 +1668,7 @@ unsigned long WINAPI service_control_handler(unsigned long control, unsigned lon
       if (event == PBT_APMRESUMEAUTOMATIC) {
         service->last_control = control;
         log_service_control(service->name, control, true);
-        (void) nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_POWER, NSSM_HOOK_ACTION_RESUME, &control);
+        (void) nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_POWER, (TCHAR*)NSSM_HOOK_ACTION_RESUME, &control);
         return NO_ERROR;
       }
 
@@ -1673,7 +1676,7 @@ unsigned long WINAPI service_control_handler(unsigned long control, unsigned lon
       if (event == PBT_APMPOWERSTATUSCHANGE) {
         service->last_control = control;
         log_service_control(service->name, control, true);
-        (void) nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_POWER, NSSM_HOOK_ACTION_CHANGE, &control);
+        (void) nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_POWER, (TCHAR*)NSSM_HOOK_ACTION_CHANGE, &control);
         return NO_ERROR;
       }
       log_service_control(service->name, control, false);
@@ -1725,7 +1728,7 @@ int start_service(nssm_service_t *service) {
 
   /* Pre-start hook. */
   unsigned long control = NSSM_SERVICE_CONTROL_START;
-  if (nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_START, NSSM_HOOK_ACTION_PRE, &control, NSSM_SERVICE_STATUS_DEADLINE, false) == NSSM_HOOK_STATUS_ABORT) {
+  if (nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_START, (TCHAR*)NSSM_HOOK_ACTION_PRE, &control, NSSM_SERVICE_STATUS_DEADLINE, false) == NSSM_HOOK_STATUS_ABORT) {
     TCHAR code[16];
     _sntprintf_s(code, _countof(code), _TRUNCATE, _T("%lu"), NSSM_HOOK_STATUS_ABORT);
     log_event(EVENTLOG_ERROR_TYPE, NSSM_EVENT_PRESTART_HOOK_ABORT, NSSM_HOOK_EVENT_START, NSSM_HOOK_ACTION_PRE, service->name, code, 0);
@@ -1807,7 +1810,7 @@ int start_service(nssm_service_t *service) {
     but be mindful of the fact that we are blocking the service control manager
     so abandon the wait before too much time has elapsed.
   */
-  if (await_single_handle(service->status_handle, &service->status, service->process_handle, service->name, _T("start_service"), service->throttle_delay) == 1) service->throttle = 0;
+  if (await_single_handle(service->status_handle, &service->status, service->process_handle, service->name, (TCHAR*)_T("start_service"), service->throttle_delay) == 1) service->throttle = 0;
 
   /* Did another thread receive a stop control? */
   if (! service->allow_restart) return 0;
@@ -1819,7 +1822,7 @@ int start_service(nssm_service_t *service) {
 
   /* Post-start hook. */
   if (! service->throttle) {
-    (void) nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_START, NSSM_HOOK_ACTION_POST, &control);
+    (void) nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_START, (TCHAR*)NSSM_HOOK_ACTION_POST, &control);
   }
 
   /* Ensure the restart delay is always applied. */
@@ -1928,7 +1931,7 @@ void CALLBACK end_service(void *arg, unsigned char why) {
 
   /* Exit hook. */
   service->exit_count++;
-  (void) nssm_hook(&hook_threads, service, NSSM_HOOK_EVENT_EXIT, NSSM_HOOK_ACTION_POST, NULL, NSSM_HOOK_DEADLINE, true);
+  (void) nssm_hook(&hook_threads, service, (TCHAR*)NSSM_HOOK_EVENT_EXIT, (TCHAR*)NSSM_HOOK_ACTION_POST, NULL, NSSM_HOOK_DEADLINE, true);
 
   /*
     The why argument is true if our wait timed out or false otherwise.

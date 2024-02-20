@@ -241,7 +241,7 @@ void rotate_file(TCHAR *service_name, TCHAR *path, unsigned long seconds, unsign
   bool ok = true;
   TCHAR *function;
   if (copy_and_truncate) {
-    function = _T("CopyFile()");
+    function = (TCHAR*)_T("CopyFile()");
     if (CopyFile(path, rotated, TRUE)) {
       file = write_to_file(path, NSSM_STDOUT_SHARING, 0, NSSM_STDOUT_DISPOSITION, NSSM_STDOUT_FLAGS);
       Sleep(delay);
@@ -252,7 +252,7 @@ void rotate_file(TCHAR *service_name, TCHAR *path, unsigned long seconds, unsign
     else ok = false;
   }
   else {
-    function = _T("MoveFile()");
+    function = (TCHAR*)_T("MoveFile()");
     if (! MoveFile(path, rotated)) ok = false;
   }
   if (ok) {
@@ -540,7 +540,7 @@ unsigned long WINAPI log_and_rotate(void *arg) {
           bool ok = true;
           TCHAR *function;
           if (logger->copy_and_truncate) {
-            function = _T("CopyFile()");
+            function = (TCHAR*)_T("CopyFile()");
             if (CopyFile(logger->path, rotated, TRUE)) {
               HANDLE file = write_to_file(logger->path, NSSM_STDOUT_SHARING, 0, NSSM_STDOUT_DISPOSITION, NSSM_STDOUT_FLAGS);
               Sleep(logger->rotate_delay);
@@ -551,7 +551,7 @@ unsigned long WINAPI log_and_rotate(void *arg) {
             else ok = false;
           }
           else {
-            function = _T("MoveFile()");
+            function = (TCHAR*)_T("MoveFile()");
             if (! MoveFile(logger->path, rotated)) ok = false;
           }
           if (ok) {
