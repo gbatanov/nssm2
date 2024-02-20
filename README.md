@@ -836,9 +836,9 @@ Properties.
 
 Credits
 -------
-Thanks to Bernard Loh for finding a bug with service recovery.
-Thanks to Benjamin Mayrargue (www.softlion.com) for adding 64-bit support.
-Thanks to Joel Reingold for spotting a command line truncation bug.
+- Thanks to Bernard Loh for finding a bug with service recovery.
+- Thanks to Benjamin Mayrargue (www.softlion.com) for adding 64-bit support.
+- Thanks to Joel Reingold for spotting a command line truncation bug.
 Thanks to Arve Knudsen for spotting that child processes of the monitored
 application could be left running on service shutdown, and that a missing
 registry value for AppDirectory confused NSSM.
