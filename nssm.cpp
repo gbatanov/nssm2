@@ -182,7 +182,7 @@ int _tmain(int argc, TCHAR **argv) {
     SERVICE_TABLE_ENTRY table[] = { { (LPWSTR)NSSM, service_main }, { 0, 0 } };
     if (! StartServiceCtrlDispatcher(table)) {
       unsigned long error = GetLastError();
-      /* User probably ran nssm with no argument */
+      /* User probably ran nssm2 with no argument */
       if (error == ERROR_FAILED_SERVICE_CONTROLLER_CONNECT) exit(usage(1));
       log_event(EVENTLOG_ERROR_TYPE, NSSM_EVENT_DISPATCHER_FAILED, error_string(error), 0);
       free_imports();

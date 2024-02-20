@@ -980,7 +980,7 @@ int pre_edit_service(int argc, TCHAR **argv) {
     }
   }
 
-  /* Get NSSM details. */
+  /* Get NSSM2 details. */
   get_parameters(service, 0);
 
   CloseServiceHandle(services);
@@ -996,7 +996,7 @@ int pre_edit_service(int argc, TCHAR **argv) {
     return 0;
   }
 
-  /* Trying to manage App* parameters for a non-NSSM service. */
+  /* Trying to manage App* parameters for a non-NSSM2 service. */
   if (! setting->native && service->native) {
     CloseServiceHandle(service->handle);
     print_message(stderr, NSSM_MESSAGE_NATIVE_PARAMETER, setting->name, NSSM);

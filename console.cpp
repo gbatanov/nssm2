@@ -67,7 +67,7 @@ void alloc_console(nssm_service_t *service) {
   _sntprintf_s(title, _countof(title), _TRUNCATE, _T("[%s] %s"), NSSM, displayname);
   SetConsoleTitle(title);
 
-  /* Draw the NSSM logo on the console window. */
+  /* Draw the NSSM2 logo on the console window. */
   short y = 0;
 
   b(0, y, 80);

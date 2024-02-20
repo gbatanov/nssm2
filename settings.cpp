@@ -790,7 +790,7 @@ int native_set_objectname(const TCHAR *service_name, void *param, const TCHAR *n
   if (! service_handle) return -1;
 
   /*
-    Logical syntax is: nssm set <service> ObjectName <username> <password>
+    Logical syntax is: nssm2 set <service> ObjectName <username> <password>
     That means the username is actually passed in the additional parameter.
   */
   bool localsystem = false;

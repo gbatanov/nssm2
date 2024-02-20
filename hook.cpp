@@ -257,16 +257,16 @@ int nssm_hook(hook_thread_t *hook_threads, nssm_service_t *service, TCHAR *hook_
   /* Path to NSSM, unquoted for the environment. */
   SetEnvironmentVariable(NSSM_HOOK_ENV_IMAGE_PATH, nssm_unquoted_imagepath());
 
-  /* NSSM version. */
+  /* NSSM2 version. */
   SetEnvironmentVariable(NSSM_HOOK_ENV_NSSM_CONFIGURATION, NSSM_CONFIGURATION);
   SetEnvironmentVariable(NSSM_HOOK_ENV_NSSM_VERSION, NSSM_VERSION);
   SetEnvironmentVariable(NSSM_HOOK_ENV_BUILD_DATE, NSSM_DATE);
 
-  /* NSSM PID. */
+  /* NSSM2 PID. */
   _sntprintf_s(number, _countof(number), _TRUNCATE, _T("%lu"), GetCurrentProcessId());
   SetEnvironmentVariable(NSSM_HOOK_ENV_PID, number);
 
-  /* NSSM runtime. */
+  /* NSSM2 runtime. */
   set_hook_runtime((TCHAR*)NSSM_HOOK_ENV_RUNTIME, &service->nssm_creation_time, &now);
 
   /* Application PID. */
