@@ -7,6 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nssm", "nssm.vcxproj", "{32
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{B5551568-18E1-406A-A7FD-5078F7BA45EF}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		README.txt = README.txt
 	EndProjectSection
 EndProject
