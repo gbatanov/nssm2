@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{9040C5ED-FE37-4E0D-8A3A-640E1EE4A1CF}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		version.h = version.h
 	EndProjectSection
 EndProject
 Global
