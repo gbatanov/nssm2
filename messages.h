@@ -117,7 +117,7 @@
 //
 // MessageText:
 //
-// To remove a service without confirmation: nssm remove <servicename> confirm
+// To remove a service without confirmation: nssm2 remove <servicename> confirm
 //
 #define NSSM_MESSAGE_PRE_REMOVE_SERVICE  0x400001F9L
 

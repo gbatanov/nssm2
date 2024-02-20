@@ -1,5 +1,5 @@
 @rem Set default version in case git isn't available.
-set description=v2.24.1-3-prerelease
+set description=v2.24.1-4-prerelease
 @rem Get canonical version from git tags, eg v2.24-1-g2c60e53.
 for /f %%v in ('git describe --tags --long') do set description=%%v
 
