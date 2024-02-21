@@ -8,7 +8,7 @@ static int selected_tab;
 
 static HWND dialog(const TCHAR *templ, HWND parent, DLGPROC function, LPARAM l) {
   // The caller will deal with GetLastError()...
-    LANGID lgid = 0x0409; // GetUserDefaultLangID();
+    LANGID lgid = GetUserDefaultLangID();
   HRSRC resource = FindResourceEx(0, RT_DIALOG, templ, lgid);
   if (! resource) {
     if (GetLastError() != ERROR_RESOURCE_LANG_NOT_FOUND) return 0;
@@ -868,7 +868,7 @@ static TCHAR *browse_filter(int message) {
   switch (message) {
     case NSSM_GUI_BROWSE_FILTER_APPLICATIONS: return (TCHAR*)_T("*.exe;*.bat;*.cmd");
     case NSSM_GUI_BROWSE_FILTER_DIRECTORIES: return (TCHAR*)_T(".");
-    case NSSM_GUI_BROWSE_FILTER_ALL_FILES: /* Fall through. */
+    case NSSM_GUI_BROWSE_FILTER_ALL_FILES: // Fall through. 
     default: return (TCHAR*)_T("*.*");
   }
 }
@@ -885,47 +885,68 @@ UINT_PTR CALLBACK browse_hook(HWND dlg, UINT message, WPARAM w, LPARAM l) {
 // Browse for application 
 void browse(HWND window, TCHAR *current, unsigned long flags, ...) {
   if (! window) return;
-
+ 
   va_list arg;
-  size_t bufsize = 256;
+  const size_t bufsize = 260;
   size_t len = bufsize;
   int i;
+ 
+  OPENFILENAME ofn;       // common dialog box structure
+  TCHAR szFile[bufsize]{ 0 };       // buffer for file name
+  HWND hwnd = window;              // owner window
 
-  OPENFILENAME ofn;
+  // Initialize OPENFILENAME
   ZeroMemory(&ofn, sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
-  ofn.lpstrFilter = (TCHAR *) HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS | HEAP_ZERO_MEMORY, bufsize * sizeof(TCHAR));
-  // XXX: Escaping nulls with FormatMessage is tricky 
+  ofn.hwndOwner = hwnd;
+ 
+      ofn.lpstrFile = (TCHAR*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, PATH_LENGTH * sizeof(TCHAR));
+      if (ofn.lpstrFile) {
+          if (flags & OFN_NOVALIDATE) {
+              // Directory hack. 
+              _sntprintf_s(ofn.lpstrFile, DIR_LENGTH, _TRUNCATE, _T(":%s:"), message_string(NSSM_GUI_BROWSE_FILTER_DIRECTORIES));
+              ofn.nMaxFile = DIR_LENGTH;
+          }
+          else {
+              _sntprintf_s(ofn.lpstrFile, PATH_LENGTH, _TRUNCATE, _T("%s"), current);
+              ofn.nMaxFile = PATH_LENGTH;
+          }
+      }
 
-    len = 0;
-    // "Applications" + NULL + "*.exe" + NULL 
-    va_start(arg, flags);
-    while (i = va_arg(arg, int)) {
-      TCHAR *localised = message_string(i);
-      _sntprintf_s((TCHAR *) ofn.lpstrFilter + len, bufsize, _TRUNCATE, localised);
-      len += _tcslen(localised) + 1;
-      LocalFree(localised);
-      TCHAR *filter = browse_filter(i);
-      _sntprintf_s((TCHAR *) ofn.lpstrFilter + len, bufsize - len, _TRUNCATE, _T("%s"), filter);
-      len += _tcslen(filter) + 1;
-    }
-    va_end(arg);
-    // Remainder of the buffer is already zeroed 
 
-  ofn.lpstrFile = (TCHAR *) HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY, PATH_LENGTH * sizeof(TCHAR));
-  if (ofn.lpstrFile) {
-    if (flags & OFN_NOVALIDATE) {
-      // Directory hack. 
-      _sntprintf_s(ofn.lpstrFile, DIR_LENGTH, _TRUNCATE, _T(":%s:"), message_string(NSSM_GUI_BROWSE_FILTER_DIRECTORIES));
-      ofn.nMaxFile = DIR_LENGTH;
-    }
-    else {
-      _sntprintf_s(ofn.lpstrFile, PATH_LENGTH, _TRUNCATE, _T("%s"), current);
-      ofn.nMaxFile = PATH_LENGTH;
-    }
-  }
+  ofn.nMaxFile = sizeof(szFile);
+
+      // Ошибка возникает из-за этого блока кода
+     ofn.lpstrFilter = (TCHAR*)HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS | HEAP_ZERO_MEMORY, bufsize * sizeof(TCHAR));
+      // XXX: Escaping nulls with FormatMessage is tricky 
+
+      len = 0;
+      // "Applications" + NULL + "*.exe" + NULL 
+      va_start(arg, flags);
+     while (i = va_arg(arg, int)) {
+
+          TCHAR* localised = message_string(i); // локализованный текст
+          _sntprintf_s((TCHAR*)(ofn.lpstrFilter + len), bufsize-len, _TRUNCATE, localised);
+          len += wcslen(localised);
+          _sntprintf_s((TCHAR*)(ofn.lpstrFilter + len), bufsize-len, _TRUNCATE, L"\0");
+          len += 1;
+          LocalFree(localised);
+          TCHAR* filter = browse_filter(i); // фильтр
+          _sntprintf_s((TCHAR*)(ofn.lpstrFilter + len), bufsize - len, _TRUNCATE, (TCHAR*)_T("%s"), filter);
+          len += _tcslen(filter) ;
+          _sntprintf_s((TCHAR*)(ofn.lpstrFilter + len), bufsize-len, _TRUNCATE, L"\0");
+          len += 1;
+      }
+          _sntprintf_s((TCHAR*)(ofn.lpstrFilter + len), bufsize-len, _TRUNCATE, L"\0");
+      va_end(arg);
+ 
+
+  ofn.nFilterIndex = 1;
+  ofn.lpstrFileTitle = NULL;
+  ofn.nMaxFileTitle = 0;
+  ofn.lpstrInitialDir = NULL;
   ofn.lpstrTitle = message_string(NSSM_GUI_BROWSE_TITLE);
-  ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | flags;
+  ofn.Flags = OFN_EXPLORER |  OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | flags;
 
   if (GetOpenFileName(&ofn)) {
     // Directory hack. 
