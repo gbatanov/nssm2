@@ -8,7 +8,7 @@ NSSM2 is a service helper program similar to srvany and cygrunsrv.  It can
 start any application as an NT service and will restart the service if it  
 fails for any reason.
 
-NSSM2 also has a graphical service installer and remover.
+NSSM2 имее как консольный, так и графический интерфейс.
 
 Полная документация на английском об исходной версии NSSM
 

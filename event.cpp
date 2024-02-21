@@ -3,11 +3,11 @@
 #define NSSM_SOURCE _T("nssm")
 #define NSSM_ERROR_BUFSIZE 65535
 #define NSSM_NUM_EVENT_STRINGS 16
-unsigned long tls_index;
+unsigned long tls_index =0;
 
-/* Convert error code to error string - must call LocalFree() on return value */
+// Convert error code to error string - must call LocalFree() on return value 
 TCHAR *error_string(unsigned long error) {
-  /* Thread-safe buffer */
+  // Thread-safe buffer 
   TCHAR *error_message = (TCHAR *) TlsGetValue(tls_index);
   if (! error_message) {
     error_message = (TCHAR *) LocalAlloc(LPTR, NSSM_ERROR_BUFSIZE);
@@ -24,13 +24,14 @@ TCHAR *error_string(unsigned long error) {
   return error_message;
 }
 
-/* Convert message code to format string */
-TCHAR *message_string(unsigned long error) {
-  TCHAR *ret;
-  if (! FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, 0, error, GetUserDefaultLangID(), (LPTSTR) &ret, NSSM_ERROR_BUFSIZE, 0)) {
-    if (! FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, 0, error, 0, (LPTSTR) &ret, NSSM_ERROR_BUFSIZE, 0)) {
-      ret = (TCHAR *) HeapAlloc(GetProcessHeap(), 0, 32 * sizeof(TCHAR));
-      if (_sntprintf_s(ret, NSSM_ERROR_BUFSIZE, _TRUNCATE, _T("system error %lu"), error) < 0) return 0;
+// Convert message code to format string 
+TCHAR *message_string(unsigned long message_code) {
+  TCHAR *ret = nullptr;
+  if (! FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, 0, message_code, GetUserDefaultLangID(), (LPTSTR) &ret, NSSM_ERROR_BUFSIZE, 0)) {
+      if (!FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, 0, message_code, 0, (LPTSTR)&ret, NSSM_ERROR_BUFSIZE, 0)) {
+      ret = (TCHAR *) HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS | HEAP_ZERO_MEMORY, 128 * sizeof(TCHAR)); // почему 32?? поставил 128
+      if (_sntprintf_s(ret, NSSM_ERROR_BUFSIZE, _TRUNCATE, _T("system error %lu"), message_code) < 0)
+          return 0;
     }
   }
   return ret;
