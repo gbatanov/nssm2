@@ -7,8 +7,9 @@ static const TCHAR *hook_action_strings[] = { NSSM_HOOK_ACTION_PRE, NSSM_HOOK_AC
 static int selected_tab;
 
 static HWND dialog(const TCHAR *templ, HWND parent, DLGPROC function, LPARAM l) {
-  /* The caller will deal with GetLastError()... */
-  HRSRC resource = FindResourceEx(0, RT_DIALOG, templ, GetUserDefaultLangID());
+  // The caller will deal with GetLastError()...
+    LANGID lgid = 0x0409; // GetUserDefaultLangID();
+  HRSRC resource = FindResourceEx(0, RT_DIALOG, templ, lgid);
   if (! resource) {
     if (GetLastError() != ERROR_RESOURCE_LANG_NOT_FOUND) return 0;
     resource = FindResourceEx(0, RT_DIALOG, templ, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
@@ -881,7 +882,7 @@ UINT_PTR CALLBACK browse_hook(HWND dlg, UINT message, WPARAM w, LPARAM l) {
   return 0;
 }
 
-/* Browse for application */
+// Browse for application 
 void browse(HWND window, TCHAR *current, unsigned long flags, ...) {
   if (! window) return;
 
@@ -893,12 +894,11 @@ void browse(HWND window, TCHAR *current, unsigned long flags, ...) {
   OPENFILENAME ofn;
   ZeroMemory(&ofn, sizeof(ofn));
   ofn.lStructSize = sizeof(ofn);
-  ofn.lpstrFilter = (TCHAR *) HeapAlloc(GetProcessHeap(), 0, bufsize * sizeof(TCHAR));
-  /* XXX: Escaping nulls with FormatMessage is tricky */
-  if (ofn.lpstrFilter) {
-    ZeroMemory((void *) ofn.lpstrFilter, bufsize);
+  ofn.lpstrFilter = (TCHAR *) HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS | HEAP_ZERO_MEMORY, bufsize * sizeof(TCHAR));
+  // XXX: Escaping nulls with FormatMessage is tricky 
+
     len = 0;
-    /* "Applications" + NULL + "*.exe" + NULL */
+    // "Applications" + NULL + "*.exe" + NULL 
     va_start(arg, flags);
     while (i = va_arg(arg, int)) {
       TCHAR *localised = message_string(i);
@@ -910,13 +910,13 @@ void browse(HWND window, TCHAR *current, unsigned long flags, ...) {
       len += _tcslen(filter) + 1;
     }
     va_end(arg);
-    /* Remainder of the buffer is already zeroed */
-  }
-  ofn.lpstrFile = (TCHAR *) HeapAlloc(GetProcessHeap(), 0, PATH_LENGTH * sizeof(TCHAR));
+    // Remainder of the buffer is already zeroed 
+
+  ofn.lpstrFile = (TCHAR *) HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY, PATH_LENGTH * sizeof(TCHAR));
   if (ofn.lpstrFile) {
     if (flags & OFN_NOVALIDATE) {
-      /* Directory hack. */
-      _sntprintf_s(ofn.lpstrFile, PATH_LENGTH, _TRUNCATE, _T(":%s:"), message_string(NSSM_GUI_BROWSE_FILTER_DIRECTORIES));
+      // Directory hack. 
+      _sntprintf_s(ofn.lpstrFile, DIR_LENGTH, _TRUNCATE, _T(":%s:"), message_string(NSSM_GUI_BROWSE_FILTER_DIRECTORIES));
       ofn.nMaxFile = DIR_LENGTH;
     }
     else {
@@ -928,12 +928,15 @@ void browse(HWND window, TCHAR *current, unsigned long flags, ...) {
   ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | flags;
 
   if (GetOpenFileName(&ofn)) {
-    /* Directory hack. */
-    if (flags & OFN_NOVALIDATE) strip_basename(ofn.lpstrFile);
+    // Directory hack. 
+    if (flags & OFN_NOVALIDATE) 
+        strip_basename(ofn.lpstrFile);
     SendMessage(window, WM_SETTEXT, 0, (LPARAM) ofn.lpstrFile);
   }
-  if (ofn.lpstrFilter) HeapFree(GetProcessHeap(), 0, (void *) ofn.lpstrFilter);
-  if (ofn.lpstrFile) HeapFree(GetProcessHeap(), 0, ofn.lpstrFile);
+  if (ofn.lpstrFilter) 
+      HeapFree(GetProcessHeap(), 0, (void *) ofn.lpstrFilter);
+  if (ofn.lpstrFile) 
+      HeapFree(GetProcessHeap(), 0, ofn.lpstrFile);
 }
 
 INT_PTR CALLBACK tab_dlg(HWND tab, UINT message, WPARAM w, LPARAM l) {

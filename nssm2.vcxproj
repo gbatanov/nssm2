@@ -78,8 +78,8 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>out\$(Configuration)\win64\</OutDir>
-    <IntDir>tmp\$(Configuration)\win64\</IntDir>
+    <OutDir>$(Configuration)\win64\out\</OutDir>
+    <IntDir>$(Configuration)\win64\tmp\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)</TargetName>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
